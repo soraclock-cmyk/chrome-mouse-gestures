@@ -263,9 +263,7 @@
         if (e.button !== 2) return;
         if (!isGesturing) return;
 
-        isGesturing = false;
-        removeCanvas();
-        removeHud();
+        endGesture();
 
         const gestureCode = directions.join('');
         if (gestureCode.length > 0) {
@@ -278,10 +276,31 @@
         lastDirection = '';
     }
 
-    // ── Right-click + Mouse Wheel → Tab switching ──
+    function endGesture() {
+        if (!isGesturing) return;
+
+        isGesturing = false;
+        removeCanvas();
+        removeHud();
+    }
+
+    function isRightButtonHeld(e) {
+        return !!(e.buttons & 2);
+    }
+
     function onWheel(e) {
         if (!isGesturing) return;
         if (!settings || !settings.enabled) return;
+
+        // If mouseup happened outside of the page, stale state can remain.
+        // Ignore wheel actions unless the right button is currently held.
+        if (!isRightButtonHeld(e)) {
+            endGesture();
+            directions = [];
+            lastDirection = '';
+            suppressContext = false;
+            return;
+        }
 
         e.preventDefault();
         e.stopPropagation();
@@ -310,6 +329,19 @@
         }
     }
 
+    function onWindowBlur() {
+        endGesture();
+        directions = [];
+        lastDirection = '';
+        suppressContext = false;
+    }
+
+    function onVisibilityChange() {
+        if (document.visibilityState !== 'visible') {
+            onWindowBlur();
+        }
+    }
+
     // ── Scroll handler (from background) ──
     try {
         chrome.runtime.onMessage.addListener((message) => {
@@ -330,6 +362,8 @@
             canvas.height = window.innerHeight;
         }
     });
+    window.addEventListener('blur', onWindowBlur);
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     // ── Attach event listeners ──
     document.addEventListener('mousedown', onMouseDown, true);
