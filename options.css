@@ -1,0 +1,542 @@
+/* ── Options Page Styles ── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Helvetica Neue', -apple-system, sans-serif;
+    background: #0f0f1a;
+    color: #e0e0e0;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+}
+
+/* ── Header ── */
+header {
+    background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+    padding: 28px 32px;
+    border-bottom: 1px solid rgba(79, 195, 247, 0.15);
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    background: linear-gradient(90deg, #4fc3f7, #81d4fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ── Cards ── */
+main {
+    padding: 24px;
+}
+
+.card {
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+}
+
+.card h2 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #4fc3f7;
+    margin-bottom: 16px;
+}
+
+.hint {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+/* ── Setting Rows ── */
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.setting-row:last-child {
+    border-bottom: none;
+}
+
+.setting-row label {
+    font-size: 14px;
+    color: #b0bec5;
+}
+
+/* ── Toggle ── */
+.toggle {
+    position: relative;
+    width: 42px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    background: #333;
+    border-radius: 22px;
+    transition: 0.3s;
+}
+
+.slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: #666;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.toggle input:checked+.slider {
+    background: #0f3460;
+}
+
+.toggle input:checked+.slider::before {
+    transform: translateX(20px);
+    background: #4fc3f7;
+    box-shadow: 0 0 8px rgba(79, 195, 247, 0.6);
+}
+
+/* ── Range ── */
+.range-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 140px;
+    height: 4px;
+    background: #333;
+    border-radius: 4px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #4fc3f7;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+}
+
+.range-value {
+    font-size: 13px;
+    color: #4fc3f7;
+    min-width: 36px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── Color picker ── */
+input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    width: 40px;
+    height: 32px;
+    cursor: pointer;
+    background: transparent;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 2px;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border-radius: 4px;
+    border: none;
+}
+
+/* ── Gesture Table ── */
+.gesture-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.15s;
+}
+
+.gesture-row:hover {
+    background: rgba(79, 195, 247, 0.04);
+    margin: 0 -12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+}
+
+.gesture-row:last-child {
+    border-bottom: none;
+}
+
+.gesture-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gesture-arrows {
+    font-size: 18px;
+    color: #4fc3f7;
+    min-width: 50px;
+}
+
+.gesture-action {
+    font-size: 13px;
+    color: #90a4ae;
+}
+
+.gesture-row-btns {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-icon {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #607d8b;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    opacity: 0;
+}
+
+.gesture-row:hover .btn-icon {
+    opacity: 1;
+}
+
+.btn-edit:hover {
+    background: rgba(79, 195, 247, 0.15);
+    color: #4fc3f7;
+}
+
+.btn-delete:hover {
+    background: rgba(244, 67, 54, 0.15);
+    color: #f44336;
+}
+
+/* ── Add Gesture Button ── */
+.btn-add {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    border: 2px dashed rgba(79, 195, 247, 0.2);
+    border-radius: 8px;
+    background: transparent;
+    color: #4fc3f7;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-add:hover {
+    border-color: rgba(79, 195, 247, 0.5);
+    background: rgba(79, 195, 247, 0.05);
+}
+
+/* ── Buttons ── */
+.actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0f3460, #1a5276);
+    color: #4fc3f7;
+    box-shadow: 0 2px 12px rgba(79, 195, 247, 0.15);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 4px 20px rgba(79, 195, 247, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: #90a4ae;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Toast ── */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1a5276;
+    color: #4fc3f7;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ══════════════════════════════════ */
+/* ── Modal Overlay                ── */
+/* ══════════════════════════════════ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background: #1a1a2e;
+    border: 1px solid rgba(79, 195, 247, 0.15);
+    border-radius: 16px;
+    padding: 28px;
+    width: 420px;
+    max-width: 90vw;
+    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.modal-field label {
+    font-size: 13px;
+    color: #90a4ae;
+    font-weight: 500;
+}
+
+/* ── Gesture Input Group ── */
+.gesture-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.gesture-preview {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gesture-preview-placeholder {
+    color: #546e7a;
+    font-size: 13px;
+}
+
+.gesture-preview-arrows {
+    font-size: 32px;
+    color: #4fc3f7;
+    letter-spacing: 8px;
+    text-shadow: 0 0 20px rgba(79, 195, 247, 0.4);
+}
+
+.gesture-input-buttons {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.dir-btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(79, 195, 247, 0.25);
+    border-radius: 10px;
+    background: rgba(79, 195, 247, 0.06);
+    color: #4fc3f7;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dir-btn:hover {
+    background: rgba(79, 195, 247, 0.15);
+    border-color: rgba(79, 195, 247, 0.5);
+    transform: scale(1.08);
+}
+
+.dir-btn:active {
+    transform: scale(0.95);
+}
+
+.dir-btn-clear {
+    border-color: rgba(244, 67, 54, 0.25);
+    background: rgba(244, 67, 54, 0.06);
+    color: #f44336;
+}
+
+.dir-btn-clear:hover {
+    background: rgba(244, 67, 54, 0.15);
+    border-color: rgba(244, 67, 54, 0.5);
+}
+
+/* ── Select & Input ── */
+.modal select,
+.modal input[type="text"] {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.modal select:focus,
+.modal input[type="text"]:focus {
+    border-color: rgba(79, 195, 247, 0.4);
+}
+
+.modal select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234fc3f7' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+}
+
+.modal select option {
+    background: #1a1a2e;
+    color: #e0e0e0;
+}
+
+/* ── Modal Error ── */
+.modal-error {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #ef9a9a;
+    font-size: 13px;
+}
+
+/* ── Modal Actions ── */
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-end;
+}

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Gestures — 設定</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="header-inner">
+                <img src="icons/icon48.png" alt="" width="32" height="32">
+                <h1>Mouse Gestures 設定</h1>
+            </div>
+        </header>
+
+        <main>
+            <!-- General Settings -->
+            <section class="card">
+                <h2>一般設定</h2>
+                <div class="setting-row">
+                    <div>
+                        <label for="enabled">マウスジェスチャーを有効にする</label>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="enabled" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <label for="showTrail">トレイル・HUD 表示</label>
+                        <p class="hint" style="margin:0;margin-top:2px;">OFF にするとジェスチャー中の軌跡・矢印表示を非表示にします</p>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="showTrail" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Sensitivity -->
+            <section class="card">
+                <h2>感度</h2>
+                <div class="setting-row">
+                    <label for="threshold">方向検出の閾値</label>
+                    <div class="range-group">
+                        <input type="range" id="threshold" min="10" max="80" value="30">
+                        <span class="range-value" id="thresholdValue">30px</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trail Appearance -->
+            <section class="card">
+                <h2>トレイル表示</h2>
+                <div class="setting-row">
+                    <label for="trailColor">トレイル色</label>
+                    <input type="color" id="trailColor" value="#4fc3f7">
+                </div>
+                <div class="setting-row">
+                    <label for="trailWidth">トレイル太さ</label>
+                    <div class="range-group">
+                        <input type="range" id="trailWidth" min="1" max="10" value="3">
+                        <span class="range-value" id="trailWidthValue">3px</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gesture Mappings -->
+            <section class="card">
+                <h2>ジェスチャー編集</h2>
+                <p class="hint">各ジェスチャーのアクションを変更・追加・削除できます。</p>
+                <div id="gestureTable"></div>
+                <button id="addGestureBtn" class="btn-add">＋ 新しいジェスチャーを追加</button>
+            </section>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button id="saveBtn" class="btn-primary">保存</button>
+                <button id="resetBtn" class="btn-secondary">デフォルトに戻す</button>
+            </div>
+
+            <div id="toast" class="toast">設定を保存しました ✓</div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Gesture Modal -->
+    <div id="gestureModal" class="modal-overlay" style="display:none;">
+        <div class="modal">
+            <h3 id="modalTitle">新しいジェスチャーを追加</h3>
+
+            <div class="modal-body">
+                <!-- Gesture Input -->
+                <div class="modal-field">
+                    <label>ジェスチャーパターン</label>
+                    <div class="gesture-input-group">
+                        <div class="gesture-preview" id="gesturePreview">
+                            <span class="gesture-preview-placeholder">ここに方向が表示されます</span>
+                        </div>
+                        <div class="gesture-input-buttons">
+                            <button class="dir-btn" data-dir="U">↑</button>
+                            <button class="dir-btn" data-dir="D">↓</button>
+                            <button class="dir-btn" data-dir="L">←</button>
+                            <button class="dir-btn" data-dir="R">→</button>
+                            <button class="dir-btn dir-btn-clear" id="clearGestureBtn">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Select -->
+                <div class="modal-field">
+                    <label for="actionSelect">アクション</label>
+                    <select id="actionSelect">
+                        <option value="back">戻る</option>
+                        <option value="forward">進む</option>
+                        <option value="newTab">新しいタブ</option>
+                        <option value="closeTab">タブを閉じる</option>
+                        <option value="restoreTab">閉じたタブを復元</option>
+                        <option value="reload">再読み込み</option>
+                        <option value="scrollTop">ページ先頭</option>
+                        <option value="scrollBottom">ページ末尾</option>
+                        <option value="prevTab">前のタブ</option>
+                        <option value="nextTab">次のタブ</option>
+                    </select>
+                </div>
+
+                <!-- Custom Label -->
+                <div class="modal-field">
+                    <label for="labelInput">表示名（任意）</label>
+                    <input type="text" id="labelInput" placeholder="自動で設定されます">
+                </div>
+
+                <!-- Error message -->
+                <div id="modalError" class="modal-error" style="display:none;"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="modalSaveBtn" class="btn-primary">追加</button>
+                <button id="modalCancelBtn" class="btn-secondary">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="content.js"></script>
+    <script src="options.js"></script>
+</body>
+
+</html>

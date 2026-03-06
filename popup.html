@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+  <div class="popup">
+    <header class="popup-header">
+      <div class="logo">
+        <img src="icons/icon48.png" alt="icon" width="24" height="24">
+        <h1>Mouse Gestures</h1>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="enableToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </header>
+
+    <div class="popup-toggles">
+      <div class="popup-toggle-row">
+        <span class="popup-toggle-label">🎨 トレイル表示</span>
+        <label class="toggle toggle-sm">
+          <input type="checkbox" id="trailToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <section class="gesture-list" id="gestureList">
+      <!-- Populated by JS -->
+    </section>
+
+    <footer class="popup-footer">
+      <a href="#" id="openOptions">⚙ 設定</a>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+
+</html>
