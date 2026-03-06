@@ -28,6 +28,7 @@
     let hud = null;
     let directionHud = null;
     let hasMoved = false;  // track if mouse actually moved during gesture
+    let isRightButtonDown = false;
 
     // ── Direction map for arrows ──
     const ARROW_MAP = { U: '↑', D: '↓', L: '←', R: '→' };
@@ -202,6 +203,7 @@
         if (e.button !== 2) return; // right-click only
         if (!settings || !settings.enabled) return;
 
+        isRightButtonDown = true;
         isGesturing = true;
         hasMoved = false;
         startX = e.clientX;
@@ -220,6 +222,11 @@
 
     function onMouseMove(e) {
         if (!isGesturing) return;
+
+        if (!isRightButtonHeld(e)) {
+            resetGestureState();
+            return;
+        }
 
         const threshold = (settings && settings.threshold) || 30;
         const dx = e.clientX - anchorX;
@@ -261,11 +268,11 @@
 
     function onMouseUp(e) {
         if (e.button !== 2) return;
+
+        isRightButtonDown = false;
         if (!isGesturing) return;
 
-        isGesturing = false;
-        removeCanvas();
-        removeHud();
+        endGesture();
 
         const gestureCode = directions.join('');
         if (gestureCode.length > 0) {
@@ -278,10 +285,36 @@
         lastDirection = '';
     }
 
-    // ── Right-click + Mouse Wheel → Tab switching ──
+    function endGesture() {
+        if (!isGesturing) return;
+
+        isGesturing = false;
+        removeCanvas();
+        removeHud();
+    }
+
+    function resetGestureState() {
+        endGesture();
+        isRightButtonDown = false;
+        directions = [];
+        lastDirection = '';
+        suppressContext = false;
+    }
+
+    function isRightButtonHeld(e) {
+        return !!(e.buttons & 2);
+    }
+
     function onWheel(e) {
         if (!isGesturing) return;
         if (!settings || !settings.enabled) return;
+
+        // Some environments keep stale gesture state after a missed mouseup.
+        // Require both local right-button state and current event button bits.
+        if (!isRightButtonDown || !isRightButtonHeld(e)) {
+            resetGestureState();
+            return;
+        }
 
         e.preventDefault();
         e.stopPropagation();
@@ -310,6 +343,15 @@
         }
     }
 
+    function onWindowBlur() {
+        resetGestureState();
+    }
+
+    function onVisibilityChange() {
+        if (document.visibilityState !== 'visible') {
+            onWindowBlur();
+        }
+    }
     // ── Scroll handler (from background) ──
     try {
         chrome.runtime.onMessage.addListener((message) => {
@@ -330,6 +372,9 @@
             canvas.height = window.innerHeight;
         }
     });
+    window.addEventListener('blur', onWindowBlur);
+    window.addEventListener('pointercancel', onWindowBlur, true);
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     // ── Attach event listeners ──
     document.addEventListener('mousedown', onMouseDown, true);
