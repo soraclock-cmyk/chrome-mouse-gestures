@@ -28,6 +28,7 @@
     let hud = null;
     let directionHud = null;
     let hasMoved = false;  // track if mouse actually moved during gesture
+    let isRightButtonDown = false;
 
     // ── Direction map for arrows ──
     const ARROW_MAP = { U: '↑', D: '↓', L: '←', R: '→' };
@@ -202,6 +203,7 @@
         if (e.button !== 2) return; // right-click only
         if (!settings || !settings.enabled) return;
 
+        isRightButtonDown = true;
         isGesturing = true;
         hasMoved = false;
         startX = e.clientX;
@@ -220,6 +222,11 @@
 
     function onMouseMove(e) {
         if (!isGesturing) return;
+
+        if (!isRightButtonHeld(e)) {
+            resetGestureState();
+            return;
+        }
 
         const threshold = (settings && settings.threshold) || 30;
         const dx = e.clientX - anchorX;
@@ -261,6 +268,8 @@
 
     function onMouseUp(e) {
         if (e.button !== 2) return;
+
+        isRightButtonDown = false;
         if (!isGesturing) return;
 
         endGesture();
@@ -284,6 +293,14 @@
         removeHud();
     }
 
+    function resetGestureState() {
+        endGesture();
+        isRightButtonDown = false;
+        directions = [];
+        lastDirection = '';
+        suppressContext = false;
+    }
+
     function isRightButtonHeld(e) {
         return !!(e.buttons & 2);
     }
@@ -292,13 +309,10 @@
         if (!isGesturing) return;
         if (!settings || !settings.enabled) return;
 
-        // If mouseup happened outside of the page, stale state can remain.
-        // Ignore wheel actions unless the right button is currently held.
-        if (!isRightButtonHeld(e)) {
-            endGesture();
-            directions = [];
-            lastDirection = '';
-            suppressContext = false;
+        // Some environments keep stale gesture state after a missed mouseup.
+        // Require both local right-button state and current event button bits.
+        if (!isRightButtonDown || !isRightButtonHeld(e)) {
+            resetGestureState();
             return;
         }
 
@@ -330,10 +344,7 @@
     }
 
     function onWindowBlur() {
-        endGesture();
-        directions = [];
-        lastDirection = '';
-        suppressContext = false;
+        resetGestureState();
     }
 
     function onVisibilityChange() {
@@ -341,7 +352,6 @@
             onWindowBlur();
         }
     }
-
     // ── Scroll handler (from background) ──
     try {
         chrome.runtime.onMessage.addListener((message) => {
@@ -363,6 +373,7 @@
         }
     });
     window.addEventListener('blur', onWindowBlur);
+    window.addEventListener('pointercancel', onWindowBlur, true);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     // ── Attach event listeners ──
