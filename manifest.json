@@ -1,13 +1,12 @@
 {
   "manifest_version": 3,
   "name": "Mouse Gestures",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Vivaldi-style mouse gestures for Chrome. Right-click + drag to trigger browser actions.",
   "permissions": [
     "tabs",
     "storage",
-    "sessions",
-    "topSites"
+    "sessions"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -40,8 +39,5 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  },
-  "chrome_url_overrides": {
-    "newtab": "newtab.html"
   }
 }

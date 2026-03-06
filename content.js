@@ -7,14 +7,18 @@
 (() => {
     'use strict';
 
-    // Prevent double-init (when loaded both as content script AND inline script)
+    // Prevent double-init
     if (window.__mouseGestureInitialized__) return;
     window.__mouseGestureInitialized__ = true;
 
     // ── State ──
     let isGesturing = false;
+    let startX = 0;
+    let startY = 0;
     let lastX = 0;
     let lastY = 0;
+    let anchorX = 0;  // anchor point for direction detection
+    let anchorY = 0;
     let directions = [];
     let lastDirection = '';
     let suppressContext = false;
@@ -23,6 +27,7 @@
     let ctx = null;
     let hud = null;
     let directionHud = null;
+    let hasMoved = false;  // track if mouse actually moved during gesture
 
     // ── Direction map for arrows ──
     const ARROW_MAP = { U: '↑', D: '↓', L: '←', R: '→' };
@@ -198,8 +203,13 @@
         if (!settings || !settings.enabled) return;
 
         isGesturing = true;
+        hasMoved = false;
+        startX = e.clientX;
+        startY = e.clientY;
         lastX = e.clientX;
         lastY = e.clientY;
+        anchorX = e.clientX;
+        anchorY = e.clientY;
         directions = [];
         lastDirection = '';
         suppressContext = false;
@@ -212,26 +222,39 @@
         if (!isGesturing) return;
 
         const threshold = (settings && settings.threshold) || 30;
-        const dx = e.clientX - lastX;
-        const dy = e.clientY - lastY;
+        const dx = e.clientX - anchorX;
+        const dy = e.clientY - anchorY;
 
-        // Draw trail (only if visible)
+        // Draw trail from last point (always update for smooth trail)
         if (shouldShowTrail()) {
             drawTrail(lastX, lastY, e.clientX, e.clientY);
         }
+
+        // Always update lastX/lastY for smooth trail drawing
+        lastX = e.clientX;
+        lastY = e.clientY;
 
         const dir = getDirection(dx, dy, threshold);
         if (dir && dir !== lastDirection) {
             directions.push(dir);
             lastDirection = dir;
-            lastX = e.clientX;
-            lastY = e.clientY;
+            // Reset anchor point for next direction detection
+            anchorX = e.clientX;
+            anchorY = e.clientY;
+            hasMoved = true;
             if (shouldShowTrail()) {
                 updateHud();
             }
         }
 
-        if (directions.length > 0) {
+        // Check total movement from start (even before direction detected)
+        const totalDx = e.clientX - startX;
+        const totalDy = e.clientY - startY;
+        if (Math.abs(totalDx) > 5 || Math.abs(totalDy) > 5) {
+            hasMoved = true;
+        }
+
+        if (hasMoved) {
             suppressContext = true;
         }
     }
@@ -248,7 +271,7 @@
         if (gestureCode.length > 0) {
             try {
                 chrome.runtime.sendMessage({ type: 'gesture', gesture: gestureCode });
-            } catch (e) { /* ignore */ }
+            } catch (err) { /* ignore */ }
         }
 
         directions = [];
@@ -274,8 +297,16 @@
         if (suppressContext) {
             e.preventDefault();
             e.stopPropagation();
+            e.stopImmediatePropagation();
             suppressContext = false;
             return false;
+        }
+    }
+
+    // ── Prevent text selection during gesture ──
+    function onSelectStart(e) {
+        if (isGesturing) {
+            e.preventDefault();
         }
     }
 
@@ -306,4 +337,5 @@
     document.addEventListener('mouseup', onMouseUp, true);
     document.addEventListener('wheel', onWheel, { capture: true, passive: false });
     document.addEventListener('contextmenu', onContextMenu, true);
+    document.addEventListener('selectstart', onSelectStart, true);
 })();

@@ -27,9 +27,10 @@ chrome.runtime.onInstalled.addListener(() => {
     if (!data.settings) {
       chrome.storage.sync.set({ settings: DEFAULT_SETTINGS });
     } else {
-      // Merge new defaults (e.g., showTrail) for existing installs
+      // Merge new defaults for existing installs
       const merged = { ...DEFAULT_SETTINGS, ...data.settings };
-      if (merged.showTrail === undefined) merged.showTrail = true;
+      // Ensure gestures object has all defaults merged in
+      merged.gestures = { ...DEFAULT_GESTURES, ...(data.settings.gestures || {}) };
       chrome.storage.sync.set({ settings: merged });
     }
   });
@@ -39,7 +40,13 @@ chrome.runtime.onInstalled.addListener(() => {
 async function getSettings() {
   return new Promise((resolve) => {
     chrome.storage.sync.get('settings', (data) => {
-      resolve(data.settings || DEFAULT_SETTINGS);
+      const settings = data.settings || DEFAULT_SETTINGS;
+      // Always ensure defaults are available
+      resolve({
+        ...DEFAULT_SETTINGS,
+        ...settings,
+        gestures: { ...DEFAULT_GESTURES, ...(settings.gestures || {}) }
+      });
     });
   });
 }
@@ -49,19 +56,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'gesture') {
     handleGesture(message.gesture, sender.tab);
     sendResponse({ ok: true });
+    return false;
   }
   if (message.type === 'getSettings') {
     getSettings().then((settings) => sendResponse(settings));
-    return true; // async
+    return true; // async response
   }
   if (message.type === 'wheelTab') {
     handleWheelTab(message.direction, sender.tab);
     sendResponse({ ok: true });
+    return false;
   }
 });
 
 // ── Execute gesture action ──
 async function handleGesture(gestureCode, tab) {
+  if (!tab) return;
   const settings = await getSettings();
   if (!settings.enabled) return;
 
@@ -74,6 +84,7 @@ async function handleGesture(gestureCode, tab) {
 
 // ── Handle wheel tab switching ──
 async function handleWheelTab(direction, tab) {
+  if (!tab) return;
   const settings = await getSettings();
   if (!settings.enabled) return;
 
@@ -86,53 +97,61 @@ async function handleWheelTab(direction, tab) {
 
 // ── Execute an action ──
 async function executeAction(action, tab) {
-  switch (action) {
-    case 'back':
-      chrome.tabs.goBack(tab.id);
-      break;
+  try {
+    switch (action) {
+      case 'back':
+        await chrome.tabs.goBack(tab.id);
+        break;
 
-    case 'forward':
-      chrome.tabs.goForward(tab.id);
-      break;
+      case 'forward':
+        await chrome.tabs.goForward(tab.id);
+        break;
 
-    case 'newTab':
-      chrome.tabs.create({ active: true });
-      break;
+      case 'newTab':
+        await chrome.tabs.create({ active: true });
+        break;
 
-    case 'closeTab':
-      chrome.tabs.remove(tab.id);
-      break;
+      case 'closeTab':
+        await chrome.tabs.remove(tab.id);
+        break;
 
-    case 'restoreTab':
-      chrome.sessions.restore();
-      break;
+      case 'restoreTab':
+        await chrome.sessions.restore();
+        break;
 
-    case 'reload':
-      chrome.tabs.reload(tab.id);
-      break;
+      case 'reload':
+        await chrome.tabs.reload(tab.id);
+        break;
 
-    case 'scrollTop':
-      chrome.tabs.sendMessage(tab.id, { type: 'scrollTo', position: 'top' }).catch(() => { });
-      break;
+      case 'scrollTop':
+        chrome.tabs.sendMessage(tab.id, { type: 'scrollTo', position: 'top' }).catch(() => { });
+        break;
 
-    case 'scrollBottom':
-      chrome.tabs.sendMessage(tab.id, { type: 'scrollTo', position: 'bottom' }).catch(() => { });
-      break;
+      case 'scrollBottom':
+        chrome.tabs.sendMessage(tab.id, { type: 'scrollTo', position: 'bottom' }).catch(() => { });
+        break;
 
-    case 'prevTab': {
-      const tabs = await chrome.tabs.query({ currentWindow: true });
-      const idx = tabs.findIndex((t) => t.id === tab.id);
-      const prevIdx = (idx - 1 + tabs.length) % tabs.length;
-      chrome.tabs.update(tabs[prevIdx].id, { active: true });
-      break;
+      case 'prevTab': {
+        const tabs = await chrome.tabs.query({ currentWindow: true });
+        const idx = tabs.findIndex((t) => t.id === tab.id);
+        if (idx !== -1) {
+          const prevIdx = (idx - 1 + tabs.length) % tabs.length;
+          await chrome.tabs.update(tabs[prevIdx].id, { active: true });
+        }
+        break;
+      }
+
+      case 'nextTab': {
+        const tabs = await chrome.tabs.query({ currentWindow: true });
+        const idx = tabs.findIndex((t) => t.id === tab.id);
+        if (idx !== -1) {
+          const nextIdx = (idx + 1) % tabs.length;
+          await chrome.tabs.update(tabs[nextIdx].id, { active: true });
+        }
+        break;
+      }
     }
-
-    case 'nextTab': {
-      const tabs = await chrome.tabs.query({ currentWindow: true });
-      const idx = tabs.findIndex((t) => t.id === tab.id);
-      const nextIdx = (idx + 1) % tabs.length;
-      chrome.tabs.update(tabs[nextIdx].id, { active: true });
-      break;
-    }
+  } catch (err) {
+    console.warn('[Mouse Gestures] Action failed:', action, err.message);
   }
 }
