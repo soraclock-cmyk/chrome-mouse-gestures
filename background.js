@@ -22,15 +22,15 @@ const DEFAULT_SETTINGS = {
 };
 
 // ── Initialize storage on install ──
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
   chrome.storage.sync.get('settings', (data) => {
-    if (!data.settings) {
+    if (details.reason === 'install' || !data.settings) {
+      // Fresh install: write defaults
       chrome.storage.sync.set({ settings: DEFAULT_SETTINGS });
     } else {
-      // Merge new defaults for existing installs
+      // Update: preserve user gestures, only backfill new top-level setting keys
       const merged = { ...DEFAULT_SETTINGS, ...data.settings };
-      // Ensure gestures object has all defaults merged in
-      merged.gestures = { ...DEFAULT_GESTURES, ...(data.settings.gestures || {}) };
+      merged.gestures = data.settings.gestures || DEFAULT_GESTURES;
       chrome.storage.sync.set({ settings: merged });
     }
   });
@@ -45,7 +45,7 @@ async function getSettings() {
       resolve({
         ...DEFAULT_SETTINGS,
         ...settings,
-        gestures: { ...DEFAULT_GESTURES, ...(settings.gestures || {}) }
+        gestures: settings.gestures || DEFAULT_GESTURES
       });
     });
   });
